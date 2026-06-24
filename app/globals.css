@@ -1,26 +1,42 @@
+/** @format */
+
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-background: #0b1120;
+  --color-surface: #131e35;
+  --color-border: #1e2d45;
+  --color-primary: #3b82f6;
+  --color-secondary: #06b6d4;
+  --color-foreground: #f1f5f9;
+  --color-muted: #94a3b8;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .card {
+    @apply bg-(--color-surface) border border-(--color-border) rounded-lg shadow-lg;
+  }
+
+  .input-field {
+    @apply w-full px-3 py-2 border border-(--color-border) rounded-md bg-(--color-surface) text-(--color-foreground) placeholder-(--color-muted) focus:outline-none focus:ring-2 focus:ring-(--color-primary) focus:border-(--color-primary);
+  }
+
+  .btn-primary {
+    @apply bg-(--color-primary) text-(--color-background) px-4 py-2 rounded-md font-medium hover:opacity-90 transition-colors cursor-pointer;
+  }
+
+  .btn-secondary {
+    @apply bg-(--color-secondary) text-(--color-background) px-4 py-2 rounded-md font-medium hover:opacity-90 transition-colors cursor-pointer;
+  }
+
+  .btn-danger {
+    @apply bg-red-600 text-white px-4 py-2 rounded-md font-medium hover:bg-red-700 transition-colors cursor-pointer;
+  }
 }
