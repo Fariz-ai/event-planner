@@ -44,7 +44,7 @@ export default function RootLayout({
               <nav className="flex items-center gap-4">
                 <Link
                   href="/dashboard"
-                  className="text-sm text-(--color-muted) hover:text-(--color-foreground) transition-colors">
+                  className="text-sm text-(--color-foreground) hover:text-(--color-primary) transition-colors">
                   Dashboard
                 </Link>
                 <UserButton size="icon" />
