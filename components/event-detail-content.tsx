@@ -7,6 +7,7 @@ import { Button } from "./ui/button";
 import Link from "next/link";
 import { Badge } from "./ui/badge";
 import { Card, CardContent, CardHeader } from "./ui/card";
+import { createInviteLinkAction } from "../lib/actions/events";
 
 async function EventDetailContent({
   userId,
@@ -51,6 +52,10 @@ async function EventDetailContent({
     event.id,
   );
 
+  const inviteUrl = event.inviteToken
+    ? `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/invite/${event.inviteToken}`
+    : null;
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -86,6 +91,13 @@ async function EventDetailContent({
             Share this link with guests so they can RSVP without creating an
             account.
           </p>
+          {inviteUrl ? (
+            <div className="rounded-md border-(--border) bg-(--surface) p-3 text-sm">
+              {inviteUrl}
+            </div>
+          ) : (
+            <p className="text-sm">No invite link generated yet.</p>
+          )}
 
           <form action={createInviteActionForEvent}>
             <Button type="submit">Generate Link</Button>
