@@ -22,6 +22,31 @@ function parseCreateEvent(formData: FormData) {
   };
 }
 
+type RsvpStatus = "going" | "maybe" | "not_going";
+
+function isRsvpStatus(value: string): value is RsvpStatus {
+  return value === "going" || value === "maybe" || value === "not_going";
+}
+
+function parseRsvp(formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+  if (name.length < 2 || name.length > 120) {
+    throw new Error("Name must be between 2 and 120 characters.");
+  }
+
+  const email = String(formData.get("email") ?? "").trim();
+  if (email.length < 3 || email.length > 320 || !email.includes("@")) {
+    throw new Error("Please enter a valid email.");
+  }
+
+  const status = String(formData.get("attendance") ?? "").trim();
+  if (!isRsvpStatus(status)) {
+    throw new Error("Invalid RSVP status.");
+  }
+
+  return { name, email, status };
+}
+
 export async function createEventAction(formData: FormData) {
   const session = await getSession();
   const userId = session.data.user.id;
@@ -62,4 +87,46 @@ export async function createInviteLinkAction(eventId: string) {
     create: { eventId, token },
     update: { token },
   });
+}
+
+export async function submitOrUpdateRsvpAction(
+  token: string,
+  formData: FormData,
+) {
+  const input = parseRsvp(formData);
+  const invite = await prisma.eventInvite.findFirst({
+    where: { token },
+    select: { id: true, event: { select: { id: true } } },
+  });
+
+  if (!invite) {
+    throw new Error("Invite link is invalid.");
+  }
+
+  const eventId = invite.event.id;
+  const emailNormalized = input.email.toLowerCase();
+
+  await prisma.eventRsvp.upsert({
+    where: {
+      eventId_emailNormalized: {
+        eventId,
+        emailNormalized,
+      },
+    },
+    create: {
+      eventId,
+      inviteId: invite.id,
+      name: input.name,
+      email: input.email,
+      emailNormalized,
+      status: input.status as RsvpStatus,
+    },
+    update: {
+      name: input.name,
+      status: input.status as RsvpStatus,
+      respondedAt: new Date(),
+    },
+  });
+
+  redirect(`/invite/${token}?submitted=1`);
 }
